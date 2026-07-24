@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Type Fighter — Typing Speed Battle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- START SCREEN -->
+  <section id="startScreen" class="screen active">
+    <div class="bg-anim"></div>
+    <div class="start-content">
+      <h1 class="title-anim"><span>TYPE</span><span class="accent">FIGHTER</span></h1>
+      <p class="subtitle">Type fast. Fight faster.</p>
+      <div class="menu-buttons">
+        <button id="btnPlay" class="btn btn-primary">Play</button>
+        <button id="btnInstructions" class="btn">Instructions</button>
+        <button id="btnHighScores" class="btn">High Scores</button>
+      </div>
+    </div>
+    <div class="top-controls">
+      <button id="btnMute" class="icon-btn" title="Mute">🔊</button>
+      <input id="volumeSlider" type="range" min="0" max="1" step="0.05" value="0.6" title="Volume">
+      <button id="btnDarkMode" class="icon-btn" title="Toggle dark/light mode">🌓</button>
+      <button id="btnFullscreen" class="icon-btn" title="Fullscreen">⛶</button>
+    </div>
+  </section>
+
+  <!-- INSTRUCTIONS -->
+  <section id="instructionsScreen" class="screen">
+    <div class="panel">
+      <h2>How To Play</h2>
+      <ul class="instructions-list">
+        <li><strong>Just type.</strong> The glowing word on screen is your only control — no mouse, no arrow keys.</li>
+        <li><strong>Correct letters turn green</strong>, wrong letters turn red. Backspace fixes mistakes.</li>
+        <li><strong>Speed = power.</strong> Fast, clean words trigger kicks, uppercuts and roundhouses. Slow words land a weak punch — or nothing, if you miss.</li>
+        <li><strong>Build combos.</strong> Chain correct words in a row for damage multipliers, up to an Ultimate Attack at 30.</li>
+        <li><strong>Watch the enemy.</strong> It attacks automatically — type fast enough while it winds up and you'll interrupt the hit.</li>
+        <li><strong>Survive & win.</strong> Drop the enemy's HP to zero before yours hits zero.</li>
+      </ul>
+      <button class="btn back-btn">Back</button>
+    </div>
+  </section>
+
+  <!-- HIGH SCORES -->
+  <section id="highScoresScreen" class="screen">
+    <div class="panel">
+      <h2>High Scores</h2>
+      <div id="highScoresList" class="scores-list"></div>
+      <button class="btn back-btn">Back</button>
+    </div>
+  </section>
+
+  <!-- SETUP -->
+  <section id="setupScreen" class="screen">
+    <div class="panel setup-panel">
+      <h2>Choose Your Battle</h2>
+
+      <p class="setup-label">Category</p>
+      <div class="cat-grid">
+        <button class="cat-btn selected" data-cat="random">Random</button>
+        <button class="cat-btn" data-cat="programming">Programming</button>
+        <button class="cat-btn" data-cat="gaming">Gaming</button>
+        <button class="cat-btn" data-cat="technology">Technology</button>
+        <button class="cat-btn" data-cat="science">Science</button>
+        <button class="cat-btn" data-cat="animals">Animals</button>
+        <button class="cat-btn" data-cat="countries">Countries</button>
+        <button class="cat-btn" data-cat="business">Business</button>
+        <button class="cat-btn" data-cat="medical">Medical</button>
+      </div>
+
+      <p class="setup-label">Difficulty</p>
+      <div class="diff-grid">
+        <button class="diff-btn" data-diff="easy">Easy</button>
+        <button class="diff-btn selected" data-diff="medium">Medium</button>
+        <button class="diff-btn" data-diff="hard">Hard</button>
+        <button class="diff-btn" data-diff="expert">Expert</button>
+      </div>
+
+      <label class="practice-toggle">
+        <input type="checkbox" id="practiceToggle">
+        Practice Mode <span class="hint">(enemy won't damage you)</span>
+      </label>
+
+      <button id="btnStartMatch" class="btn btn-primary btn-large">Start Match</button>
+      <button class="btn back-btn">Back</button>
+    </div>
+  </section>
+
+  <!-- GAME SCREEN -->
+  <section id="gameScreen" class="screen">
+    <div class="hud">
+      <div class="hud-side hud-left">
+        <div class="hp-label">YOU</div>
+        <div class="hp-bar"><div id="playerHPFill" class="hp-fill hp-fill-player"></div></div>
+        <div id="playerHPText" class="hp-text">100</div>
+      </div>
+      <div class="hud-center">
+        <div class="hud-stats">
+          <span>WPM <strong id="statWPM">0</strong></span>
+          <span>ACC <strong id="statAccuracy">100%</strong></span>
+          <span>COMBO <strong id="statCombo">x0</strong></span>
+          <span>LV <strong id="statLevel">1</strong></span>
+        </div>
+        <button id="btnPause" class="icon-btn">⏸</button>
+      </div>
+      <div class="hud-side hud-right">
+        <div class="hp-label">ENEMY</div>
+        <div class="hp-bar"><div id="enemyHPFill" class="hp-fill hp-fill-enemy"></div></div>
+        <div id="enemyHPText" class="hp-text">100</div>
+      </div>
+    </div>
+
+    <div id="canvasWrap">
+      <canvas id="gameCanvas"></canvas>
+      <div id="comboBanner" class="combo-banner"></div>
+      <div id="countdownOverlay" class="countdown-overlay">
+        <div id="countdownNum" class="countdown-num">3</div>
+      </div>
+    </div>
+
+    <div class="word-panel">
+      <div id="wordDisplay" class="word-display"></div>
+      <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+    </div>
+
+    <div id="pauseOverlay" class="modal-overlay">
+      <div class="modal">
+        <h2>Paused</h2>
+        <button id="btnResume" class="btn btn-primary">Resume</button>
+        <button id="btnRestartFromPause" class="btn">Restart</button>
+        <button id="btnQuitToMenu" class="btn">Quit to Menu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- VICTORY -->
+  <section id="victoryScreen" class="screen">
+    <div class="panel result-panel win">
+      <h2>Victory!</h2>
+      <p id="victoryStatsPreview" class="result-preview"></p>
+      <div class="menu-buttons">
+        <button id="btnViewStats" class="btn btn-primary">View Stats</button>
+        <button id="btnPlayAgain" class="btn">Play Again</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME OVER -->
+  <section id="gameOverScreen" class="screen">
+    <div class="panel result-panel lose">
+      <h2>Defeated</h2>
+      <p id="gameOverStatsPreview" class="result-preview"></p>
+      <div class="menu-buttons">
+        <button id="btnGOAgain" class="btn btn-primary">Try Again</button>
+        <button id="btnGOMenu" class="btn">Main Menu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section id="statsScreen" class="screen">
+    <div class="panel">
+      <h2>Match Statistics</h2>
+      <div id="statsGrid" class="stats-grid"></div>
+      <button id="btnStatsMenu" class="btn btn-primary">Main Menu</button>
+    </div>
+  </section>
+
+</div>
+
+<script src="js/utils.js"></script>
+<script src="js/words.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/effects.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/player.js"></script>
+<script src="js/enemy.js"></script>
+<script src="js/typing.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
